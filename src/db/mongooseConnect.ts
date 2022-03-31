@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 mongoose
   .connect(mongodb_client)
   .then(() => {
-    console.log("Conect success");
+    console.log("Conect success to database");
   })
   .catch(() => {
     console.log("Error connected");
