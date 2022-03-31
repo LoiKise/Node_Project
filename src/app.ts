@@ -1,11 +1,15 @@
 import express, { Application, NextFunction, Request, Response } from "express";
+import { port } from "./configs";
 import rootRouter from "./routers";
 import { ReE } from "./utils/respone";
 
+require("dotenv").config();
 const app: Application = express();
 
+// create Schema in database
 require("./db/mongooseConnect");
 require("./model/product");
+require("./model/user");
 
 app.use(express.json()); // trả về kiểu json khi được gọi hoặc lấy
 app.use("/api/v1", rootRouter);
@@ -28,4 +32,4 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json(ReE(500, "ERROR"));
 });
 
-app.listen(5000, () => console.log("Server running"));
+app.listen(port, () => console.log(`Server running port ${port}`));
