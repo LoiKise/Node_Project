@@ -8,7 +8,7 @@ export interface IUserInput {
   email: string;
   address: string;
   fullName: string;
-  phone: number;
+  phone: string;
 }
 
 export type ICart = {
@@ -35,7 +35,7 @@ export interface IUserModel extends Model<IUser> {
   addProductToCart(_id: string, _idProduct: string): IUser;
 }
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser, IUserModel>(
   {
     userName: {
       type: String,
@@ -59,6 +59,12 @@ const userSchema = new Schema<IUser>(
         const hash = bcrypt.hashSync(value, salt);
         return hash;
       },
+    },
+    email: {
+      type: String,
+      required: [true, "please type email"],
+      trim: true,
+      unique: true,
       validate(value: string) {
         if (!validator.isEmail(value)) {
           throw new Error("email invalid");
@@ -76,7 +82,7 @@ const userSchema = new Schema<IUser>(
       trim: true,
     },
     phone: {
-      type: Number,
+      type: String,
       required: [true, "please type your number phone"],
       trim: true,
       validate(value: string) {
@@ -143,27 +149,23 @@ const userSchema = new Schema<IUser>(
 );
 
 //Create database name productShema
-const UserModel = model<IUser, IUserModel>("userSchema", userSchema);
 
 // check acount(user & password) when user sign in
 userSchema.static(
   "checkSignIn",
   async function (userName: string, passWord: string) {
-    try {
-      const user: IUser | null = await UserModel.findOne({
-        userName,
-      });
-      if (!user) {
-        throw new Error("UserName is wrong");
-      }
-      const isMatch: boolean = await bcrypt.compare(passWord, user.passWord);
-      if (!isMatch) {
-        throw new Error("PassWord is wrong");
-      }
-      return user;
-    } catch (error) {
-      throw new Error("username or password is wrong");
+    const user: IUser | null = await UserModel.findOne({
+      userName,
+    });
+    console.log({ user });
+    if (!user) {
+      throw new Error("UserName is wrong");
     }
+    const isMatch = await bcrypt.compare(passWord, user.passWord);
+    if (!isMatch) {
+      throw new Error("PassWord is wrong");
+    }
+    return user;
   }
 );
 
@@ -200,5 +202,6 @@ userSchema.static("checkSignUp", async function (body: IUserInput) {
 //     const productInCart = await UserModel.findOne({_id,'cart._idProduct':idProduct})
 //   }
 // );
+const UserModel = model<IUser, IUserModel>("userSchema", userSchema);
 
 export default UserModel;

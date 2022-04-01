@@ -16,6 +16,7 @@ app.use("/api/v1", rootRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
+  // convert arry error of mongoose to object errror (when you have a lot of errror)
   if (error.errors) {
     let ObecjError: any;
     Object.keys(error.errors).forEach((e: string) => {
@@ -23,6 +24,7 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     });
     return res.status(400).json(ReE(400, { ...ObecjError }));
   }
+  //if you have just one error export error message for you
   if (error.message) {
     return res.status(400).json(ReE(400, error.message));
   }
