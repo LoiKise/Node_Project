@@ -1,6 +1,8 @@
+import { signInController } from "./../../controllers/userController/userController";
 import { Router } from "express";
-import { addProductController } from "../../controllers/userController/userController";
+import { signUpController } from "../../controllers/userController/userController";
 
 export const userRouter = Router();
 
-userRouter.post("/signup", addProductController);
+userRouter.post("/signup", signUpController);
+userRouter.post("/signin", signInController);
