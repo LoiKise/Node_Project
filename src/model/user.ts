@@ -1,6 +1,8 @@
+import IUser from "./user";
 import { Schema, Model, connect, model } from "mongoose";
 import bcrypt from "bcrypt";
 import validator from "validator";
+import ProductModel from "./product";
 
 export interface IUserInput {
   userName: string;
@@ -13,7 +15,7 @@ export interface IUserInput {
 
 export type ICart = {
   _idProduct: string;
-  productNameCart: string;
+  productName: string;
   quantity: number;
   sale: boolean;
   percentSale: number;
@@ -26,7 +28,7 @@ export type ICart = {
 export interface IUser extends IUserInput {
   _id: object;
   admin: boolean;
-  cart: ICart;
+  cart: ICart[];
 }
 
 export interface IUserModel extends Model<IUser> {
@@ -103,7 +105,7 @@ const userSchema = new Schema<IUser, IUserModel>(
           required: true,
           trim: true,
         },
-        productNameCart: {
+        productName: {
           type: String,
           require: true,
           trim: true,
@@ -179,7 +181,6 @@ userSchema.static("checkSignUp", async function (body: IUserInput) {
       { phone: body.phone },
     ],
   });
-
   if (!user) {
     return body;
   } else {
@@ -195,13 +196,87 @@ userSchema.static("checkSignUp", async function (body: IUserInput) {
 
 // add product to cart
 
-// userSchema.static(
-//   "addProductToCart",
-//   async function (_id: string, idProduct: string) {
-//     const user = await UserModel.findOne({_id});
-//     const productInCart = await UserModel.findOne({_id,'cart._idProduct':idProduct})
-//   }
-// );
+userSchema.static(
+  "addProductToCart",
+  async function (_id: string, idProduct: string) {
+    const user = await UserModel.findOne({ _id });
+    const productInCart = await UserModel.findOne({
+      _id,
+      "cart._idProduct": idProduct,
+    });
+    const product = await ProductModel.findOne({ _id: idProduct });
+    if (!user && product) {
+      if (productInCart === null) {
+        if (product.quantity <= 0) {
+          throw new Error("Out of stock");
+        } else {
+          user.cart.push({
+            _idProduct: idProduct,
+            price: product.price,
+            total: product.total,
+            img: product.img,
+            createDate: Date().toString(),
+            percentSale: product.percentSale,
+            sale: product.sale,
+            quantity: 1,
+            productName: product.productName,
+          });
+          product.quantity--;
+          await product.save();
+          await user.save();
+          return user;
+        }
+      } else {
+        if (product.quantity <= 0) {
+          throw new Error("Out of stock");
+        } else {
+          const addQuantity = await UserModel.findOneAndUpdate(
+            { _id },
+            {
+              $inc: {
+                "cart.$[el].quantity": +1,
+                "cart.$[el].price": +product.price,
+                "cart.$[el].total": +product.total,
+              },
+            },
+            {
+              arrayFilters: [{ "el._idProduct": idProduct }],
+              new: true,
+            }
+          );
+          product.quantity--;
+
+          await product.save();
+          return addQuantity;
+        }
+      }
+    } else {
+      throw new Error("Can't find product");
+    }
+  }
+);
+
+// minus quanity in cart
+userSchema.static(
+  "minusProductToCart",
+  async function (_id: string, idProduct: string) {
+    const productInCart = await UserModel.findOne({
+      _id,
+      "cart._idProduct": idProduct,
+    });
+    const customer = await UserModel.findOne({ _id }).select({
+      cart: { $elemMatch: { _idProduct: idProduct } },
+    });
+    const product = await ProductModel.findOne({ _id: idProduct });
+
+    if (product && productInCart) {
+      if (customer?.cart[0].quantity === 1) {
+        await UserModel.findByIdAndUpdate(_id, {});
+      }
+    }
+  }
+);
+
 const UserModel = model<IUser, IUserModel>("userSchema", userSchema);
 
 export default UserModel;
