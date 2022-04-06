@@ -5,13 +5,17 @@ import { ReE } from "./utils/respone";
 
 require("dotenv").config();
 const app: Application = express();
+import cors from "cors";
+
+app.use(cors());
+app.use(express.json());
 
 // create Schema in database
 require("./db/mongooseConnect");
 require("./model/product");
 require("./model/user");
 
-app.use(express.json()); // trả về kiểu json khi được gọi hoặc lấy
+// trả về kiểu json khi được gọi hoặc lấy
 app.use("/api/v1", rootRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {

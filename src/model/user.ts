@@ -34,7 +34,8 @@ export interface IUser extends IUserInput {
 export interface IUserModel extends Model<IUser> {
   checkSignIn(userName: string, passWord: string): IUser;
   checkSignUp(body: IUserInput): IUser;
-  addProductToCart(_id: string, _idProduct: string): IUser;
+  addProductToCart(_id: string, idProduct: string): IUser;
+  minusProductToCart(_id: string, idProduct: string): IUser;
 }
 
 const userSchema = new Schema<IUser, IUserModel>(
@@ -271,8 +272,38 @@ userSchema.static(
 
     if (product && productInCart) {
       if (customer?.cart[0].quantity === 1) {
-        await UserModel.findByIdAndUpdate(_id, {});
+        await UserModel.findByIdAndUpdate(
+          _id,
+          {
+            $pull: { cart: { _idProduct: idProduct } },
+          },
+          { safe: true, upsert: true }
+        );
+        product.quantity++;
+        await product.save();
+        const user = await ProductModel.findOne({ _id });
+        return user;
+      } else {
+        const userUpdate = await ProductModel.findOneAndUpdate(
+          { _id },
+          {
+            $inc: {
+              "cart.$[el].quantity": +1,
+              "cart.$[el].price": +product.price,
+              "cart.$[el].total": +product.total,
+            },
+          },
+          {
+            arrayFilters: [{ "el._idProduct": idProduct }],
+            new: true,
+          }
+        );
+        product.quantity++;
+        await product.save();
+        return userUpdate;
       }
+    } else {
+      throw new Error("not found product");
     }
   }
 );
