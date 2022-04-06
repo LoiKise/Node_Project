@@ -7,4 +7,5 @@ const rootRouter = Router();
 rootRouter.use("/products", productsRouter);
 rootRouter.use("/user", userRouter);
 
+
 export default rootRouter;
