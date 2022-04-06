@@ -30,7 +30,7 @@ export const getUserProfile = async (
   next: NextFunction
 ) => {
   try {
-    return res.status(200).json(ReS(200, (res as any).user));
+    return res.status(200).json(ReS(200, (req as any).user));
   } catch (error: any) {
     next(error);
   }
@@ -62,7 +62,7 @@ export const addProductIntoCartController = async (
   try {
     let _id = req.params.id;
     const user = await UserModel.addProductToCart(
-      (req as any).user.id.toString(),
+      (req as any).user._id.toString(),
       _id
     );
     return res.status(200).json(ReS(200, user));

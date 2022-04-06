@@ -200,13 +200,15 @@ userSchema.static("checkSignUp", async function (body: IUserInput) {
 userSchema.static(
   "addProductToCart",
   async function (_id: string, idProduct: string) {
-    const user = await UserModel.findOne({ _id });
+    const user = await UserModel.findById({ _id });
     const productInCart = await UserModel.findOne({
       _id,
       "cart._idProduct": idProduct,
     });
-    const product = await ProductModel.findOne({ _id: idProduct });
-    if (!user && product) {
+    console.log(idProduct);
+    const product = await ProductModel.findById({ _id: idProduct });
+    console.log(product);
+    if (user && product) {
       if (productInCart === null) {
         if (product.quantity <= 0) {
           throw new Error("Out of stock");

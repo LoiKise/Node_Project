@@ -2,6 +2,8 @@ import { IProduct, IProductsInput } from "../../model/product";
 import { NextFunction, Request, Response } from "express";
 import { ReE, ReS } from "../../utils/respone";
 import ProductModel from "../../model/product";
+import { request } from "http";
+import { putImagPicture } from "../../utils/putObjectS3Picture";
 
 export const addProductController = async (
   req: Request,
@@ -10,9 +12,17 @@ export const addProductController = async (
 ) => {
   try {
     // (why IProductsInput because it is type by user)
-    const product: IProductsInput = (req as any).body;
+    const { img, ...fromProuct } = req.body;
 
-    const newProduct = new ProductModel(product);
+    const newProduct = new ProductModel(fromProuct);
+
+    if ((req as any).file) {
+      const urlSanPham = await putImagPicture(
+        (req as any).file,
+        req.body.productName
+      );
+      newProduct.img = urlSanPham;
+    }
 
     await newProduct.save();
     return res.status(200).json(ReS(200, newProduct));
@@ -59,4 +69,16 @@ export const updateProductController = async (
   }
 };
 
-//
+export const getAllProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const allSanPham = await ProductModel.find();
+
+    return res.status(200).json(ReS(200, allSanPham));
+  } catch (error) {
+    next(error);
+  }
+};
