@@ -13,6 +13,13 @@ export interface IProductsInput {
   quantity?: number;
   sale: boolean;
   category: string;
+  ram: string;
+  color: string;
+  cpu: string;
+  stograge: string;
+  screen: string;
+  vga: string;
+  weight: string;
 }
 
 // It's when user type finish on client (show in postman)
@@ -25,6 +32,41 @@ export interface IProductModels extends Model<IProduct> {}
 // khai báo
 const productShema = new Schema<IProduct, IProductModels>({
   productName: {
+    type: String,
+    required: [true, "tên sản phẩm bị trống"],
+    trim: true,
+  },
+  ram: {
+    type: String,
+    required: [true, "tên sản phẩm bị trống"],
+    trim: true,
+  },
+  color: {
+    type: String,
+    required: [true, "tên sản phẩm bị trống"],
+    trim: true,
+  },
+  cpu: {
+    type: String,
+    required: [true, "tên sản phẩm bị trống"],
+    trim: true,
+  },
+  stograge: {
+    type: String,
+    required: [true, "tên sản phẩm bị trống"],
+    trim: true,
+  },
+  screen: {
+    type: String,
+    required: [true, "tên sản phẩm bị trống"],
+    trim: true,
+  },
+  vga: {
+    type: String,
+    required: [true, "tên sản phẩm bị trống"],
+    trim: true,
+  },
+  weight: {
     type: String,
     required: [true, "tên sản phẩm bị trống"],
     trim: true,

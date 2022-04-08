@@ -3,7 +3,7 @@ import {
   signInController,
   signUpController,
   getUserProfile,
-} from "./../../controllers/userController/userController";
+} from "../../controllers/userController/userController";
 import { Router } from "express";
 // import {} from "../../controllers/userController/userController";
 import { auth } from "../../middleware/auth";
