@@ -5,6 +5,10 @@ import ProductModel from "../../model/product";
 import { request } from "http";
 import { putImagPicture } from "../../utils/putObjectS3Picture";
 
+interface IMath {
+  category?: string;
+}
+
 export const addProductController = async (
   req: Request,
   res: Response,
@@ -69,7 +73,7 @@ export const updateProductController = async (
   }
 };
 
-export const getAllProduct = async (
+export const getAllProductController = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -78,6 +82,54 @@ export const getAllProduct = async (
     const allSanPham = await ProductModel.find();
 
     return res.status(200).json(ReS(200, allSanPham));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProductController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const _id = req.params.id;
+  try {
+    await ProductModel.findByIdAndDelete({ _id });
+    return res.status(200).json(ReS(200, "delete product done"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProductByIdController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let idProduct = req.params.id;
+    const product = await ProductModel.findById({ _id: idProduct });
+    res.status(200).json(ReS(200, product));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProductByCategoryController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const match: IMath = {};
+  if (req.query.category) {
+    match.category = (req as any).query.category;
+  }
+  console.log(req.query.category);
+  try {
+    if (match.category) {
+      const getAll = await ProductModel.find({ category: match.category });
+      return res.status(200).json(ReS(200, getAll));
+    }
   } catch (error) {
     next(error);
   }

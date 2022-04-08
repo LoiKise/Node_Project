@@ -15,10 +15,7 @@ export const putImagPicture = async (data: any, productName: string) => {
 
   const dst = `picture/${productName}/${Date.now()}_${originalname}`;
 
-  const bufferSharp = await sharp(buffer)
-    .resize({ width: 500, height: 750 })
-    .png()
-    .toBuffer();
+  const bufferSharp = await sharp(buffer).png().toBuffer();
 
   const params = {
     Bucket: s3_bucket_name,

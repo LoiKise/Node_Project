@@ -10,7 +10,7 @@ export const admin = async (
     if ((req as any).user.admin) {
       return next();
     }
-    return res.status(401).send(ReE(401, { error: "just admin can do it" }));
+    return res.status(403).send(ReE(403, { error: "just admin can do it" }));
   } catch (error) {
     return res.status(401).send(ReE(401, { error: "Please authenticate!" }));
   }
