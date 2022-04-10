@@ -36,6 +36,7 @@ export interface IUserModel extends Model<IUser> {
   checkSignUp(body: IUserInput): IUser;
   addProductToCart(_id: string, idProduct: string): IUser;
   minusProductToCart(_id: string, idProduct: string): IUser;
+  deleteCart(_id: string, idProduct: string): IUser;
 }
 
 const userSchema = new Schema<IUser, IUserModel>(
@@ -306,6 +307,41 @@ userSchema.static(
       }
     } else {
       throw new Error("not found product");
+    }
+  }
+);
+
+userSchema.static(
+  "deleteCart",
+  async function (_id: string, idProduct: string) {
+    const productInCart = await UserModel.findOne({
+      _id,
+      "cart._idProduct": idProduct,
+    });
+    const userCart = await UserModel.findOne({ _id }).select({
+      cart: { $elemMatch: { _idProduct: idProduct } },
+    });
+    const product = await ProductModel.findOne({ _id: idProduct });
+
+    if (product && productInCart) {
+      if (userCart?.cart[0]) {
+        const quantity = userCart?.cart[0].quantity;
+        await UserModel.findByIdAndUpdate(
+          _id,
+          {
+            $pull: { cart: { _idProduct: idProduct } },
+          },
+          { safe: true, upsert: true }
+        );
+        product.quantity = product.quantity + quantity;
+        await product.save();
+        const user = await UserModel.findOne({ _id });
+        return user;
+      } else {
+        throw new Error("Lỗi không thể tìm thấy Sản Phẩm");
+      }
+    } else {
+      throw new Error("Lỗi không thể tìm thấy Sản Phẩmmm");
     }
   }
 );

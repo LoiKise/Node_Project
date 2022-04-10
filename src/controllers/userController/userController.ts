@@ -91,3 +91,21 @@ export const minusProductIntoCartController = async (
     next(error);
   }
 };
+
+export const DeleteCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let _id = req.params.id;
+
+    const user = await UserModel.deleteCart(
+      (req as any).user._id.toString(),
+      _id
+    );
+    return res.status(200).json(ReS(200, user));
+  } catch (error) {
+    next(error);
+  }
+};
