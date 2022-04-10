@@ -3,6 +3,7 @@ import {
   signInController,
   signUpController,
   getUserProfile,
+  DeleteCart,
 } from "../../controllers/userController/userController";
 import { Router } from "express";
 // import {} from "../../controllers/userController/userController";
@@ -15,3 +16,4 @@ userRouter.post("/signin", signInController);
 userRouter.get("/profile", auth, getUserProfile);
 //thêm vào giỏ hàng (tăng số lượng)
 userRouter.post("/addCart/:id", auth, addProductIntoCartController);
+userRouter.post("/DeleteCart/:id", auth, DeleteCart);
