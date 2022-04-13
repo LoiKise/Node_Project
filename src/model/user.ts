@@ -284,16 +284,16 @@ userSchema.static(
         );
         product.quantity++;
         await product.save();
-        const user = await ProductModel.findOne({ _id });
+        const user = await UserModel.findOne({ _id });
         return user;
       } else {
-        const userUpdate = await ProductModel.findOneAndUpdate(
+        const userUpdate = await UserModel.findOneAndUpdate(
           { _id },
           {
             $inc: {
-              "cart.$[el].quantity": +1,
-              "cart.$[el].price": +product.price,
-              "cart.$[el].total": +product.total,
+              "cart.$[el].quantity": -1,
+              "cart.$[el].price": -product.price,
+              "cart.$[el].total": -product.total,
             },
           },
           {

@@ -109,3 +109,19 @@ export const DeleteCart = async (
     next(error);
   }
 };
+
+//GET ALL USER
+
+export const getALlUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const allUser = await UserModel.find();
+
+    return res.status(200).json(ReS(200, allUser));
+  } catch (error) {
+    next(error);
+  }
+};
